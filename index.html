@@ -1,31 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Dark Mode Page</title>
-  <style>
-    body {
-      background-color: #2b2b2b; /* dark grey */
-      color: white;              /* font color */
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 20px;
-    }
-  </style>
-  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
-</head>
-<body>
-
-  <video autoplay muted loop playsinline class="bg-video">
-  <source src="Video.webm" type="video/webm">
-  <source src="Video.mp4" type="video/mp4">
-</video>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 body{
   margin:0;
-  overflow:hidden;
   background:black;
+  overflow:hidden;
+  font-family:sans-serif;
 }
+
+/* Background video */
 .bg-video{
   position:fixed;
   top:0;
@@ -34,7 +19,54 @@ body{
   height:100%;
   object-fit:cover;
 }
+
+/* Alien overlay */
+.alien{
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  width:80vw;
+  max-width:400px;
+  pointer-events:none;
+}
+
+/* Tap overlay */
+.overlay{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,0.6);
+  color:white;
+  font-size:20px;
+  letter-spacing:2px;
+}
 </style>
+</head>
+
+<body>
+
+<div class="overlay" id="overlay">TAP TO START</div>
+
+<video id="bgVideo" class="bg-video" loop playsinline>
+  <source src="Video.webm" type="video/webm">
+  <source src="Video.mp4" type="video/mp4">
+</video>
+
+<img src="alien.png" class="alien">
+
+<script>
+const overlay = document.getElementById("overlay");
+const video = document.getElementById("bgVideo");
+
+overlay.addEventListener("click", () => {
+  video.muted = false;   // sound on
+  video.play();
+  overlay.style.display = "none";
+});
+</script>
 
 </body>
 </html>
