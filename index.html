@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Horizontal Shake Ball</title>
+  <title>Shake Threshold Ball</title>
   <style>
     body { margin: 0; overflow: hidden; background: #111; }
     canvas { display: block; }
@@ -35,10 +35,16 @@
     // Accelerometer smoothing for X axis only
     let ax = 0;
     const alpha = 0.1;
+    const threshold = 0.5; // minimum shake to move ball
 
     function handleMotion(event) {
       let rawX = event.acceleration.x || 0;
-      ax = ax + alpha * rawX; // smooth
+
+      // Apply low-pass filter
+      ax = ax + alpha * rawX;
+
+      // Apply threshold: ignore very small values (noise)
+      if(Math.abs(ax) < threshold) ax = 0;
     }
 
     function update() {
@@ -49,6 +55,9 @@
       // Bounce at edges
       if(ball.x + ball.radius > W) { ball.x = W - ball.radius; ball.vx *= -ball.damping; }
       if(ball.x - ball.radius < 0) { ball.x = ball.radius; ball.vx *= -ball.damping; }
+
+      // Slowly reduce velocity over time (friction)
+      ball.vx *= 0.98;
     }
 
     function draw() {
