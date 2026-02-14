@@ -1,60 +1,80 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Accelerometer Graph</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <title>Accelerometer Ball</title>
   <style>
-    body { font-family: sans-serif; text-align: center; }
-    canvas { max-width: 90%; margin: 20px auto; }
+    body { margin: 0; overflow: hidden; background: #111; }
+    canvas { display: block; }
   </style>
 </head>
 <body>
-  <h1>Accelerometer Graph (X, Y, Z)</h1>
-  <canvas id="accelChart"></canvas>
+  <canvas id="gameCanvas"></canvas>
 
   <script>
-    // --- Setup Chart.js ---
-    const ctx = document.getElementById('accelChart').getContext('2d');
-    const data = {
-      labels: Array(50).fill(''), // last 50 points
-      datasets: [
-        { label: 'X', data: Array(50).fill(0), borderColor: 'red', tension: 0.3 },
-        { label: 'Y', data: Array(50).fill(0), borderColor: 'green', tension: 0.3 },
-        { label: 'Z', data: Array(50).fill(0), borderColor: 'blue', tension: 0.3 },
-      ]
-    };
-    const config = {
-      type: 'line',
-      data: data,
-      options: {
-        animation: false,
-        scales: { y: { min: -20, max: 20 } } // adjust according to your sensor
-      }
-    };
-    const accelChart = new Chart(ctx, config);
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    let W = canvas.width = window.innerWidth;
+    let H = canvas.height = window.innerHeight;
 
-    // --- Low-pass filter setup ---
-    let lastX = 0, lastY = 0, lastZ = 0;
-    const alpha = 0.1; // smoothing factor
+    window.addEventListener('resize', () => {
+      W = canvas.width = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    });
 
-    function updateChart(x, y, z) {
-      data.datasets[0].data.push(x); data.datasets[0].data.shift();
-      data.datasets[1].data.push(y); data.datasets[1].data.shift();
-      data.datasets[2].data.push(z); data.datasets[2].data.shift();
-      accelChart.update();
-    }
+    // Ball setup
+    const ball = {
+      x: W/2,
+      y: H/2,
+      radius: 30,
+      vx: 0,
+      vy: 0,
+      color: 'cyan',
+      damping: 0.8
+    };
+
+    // Accelerometer smoothing
+    let ax = 0, ay = 0;
+    const alpha = 0.1;
 
     function handleMotion(event) {
-      let x = event.acceleration.x || 0;
-      let y = event.acceleration.y || 0;
-      let z = event.acceleration.z || 0;
+      let rawX = event.acceleration.x || 0;
+      let rawY = event.acceleration.y || 0;
 
-      // Low-pass smoothing
-      lastX = lastX + alpha * (x - lastX);
-      lastY = lastY + alpha * (y - lastY);
-      lastZ = lastZ + alpha * (z - lastZ);
+      // Smooth
+      ax = ax + alpha * rawX;
+      ay = ay + alpha * rawY;
+    }
 
-      updateChart(lastX, lastY, lastZ);
+    function update() {
+      // Invert axes to match screen
+      ball.vx += ax; 
+      ball.vy += ay;
+
+      ball.x += ball.vx;
+      ball.y += ball.vy;
+
+      // Bounce on edges
+      if(ball.x + ball.radius > W) { ball.x = W - ball.radius; ball.vx *= -ball.damping; }
+      if(ball.x - ball.radius < 0) { ball.x = ball.radius; ball.vx *= -ball.damping; }
+      if(ball.y + ball.radius > H) { ball.y = H - ball.radius; ball.vy *= -ball.damping; }
+      if(ball.y - ball.radius < 0) { ball.y = ball.radius; ball.vy *= -ball.damping; }
+    }
+
+    function draw() {
+      ctx.clearRect(0,0,W,H);
+
+      // Draw ball
+      ctx.beginPath();
+      ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI*2);
+      ctx.fillStyle = ball.color;
+      ctx.fill();
+      ctx.closePath();
+    }
+
+    function loop() {
+      update();
+      draw();
+      requestAnimationFrame(loop);
     }
 
     function requestMotionPermission() {
@@ -75,6 +95,7 @@
     }
 
     requestMotionPermission();
+    loop();
   </script>
 </body>
 </html>
