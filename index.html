@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Accelerometer Ball</title>
+  <title>Horizontal Shake Ball</title>
   <style>
     body { margin: 0; overflow: hidden; background: #111; }
     canvas { display: block; }
@@ -19,45 +19,36 @@
     window.addEventListener('resize', () => {
       W = canvas.width = window.innerWidth;
       H = canvas.height = window.innerHeight;
+      ball.y = H/2; // center Y
     });
 
     // Ball setup
     const ball = {
       x: W/2,
-      y: H/2,
+      y: H/2,      // fixed vertical
       radius: 30,
       vx: 0,
-      vy: 0,
       color: 'cyan',
       damping: 0.8
     };
 
-    // Accelerometer smoothing
-    let ax = 0, ay = 0;
+    // Accelerometer smoothing for X axis only
+    let ax = 0;
     const alpha = 0.1;
 
     function handleMotion(event) {
       let rawX = event.acceleration.x || 0;
-      let rawY = event.acceleration.y || 0;
-
-      // Smooth
-      ax = ax + alpha * rawX;
-      ay = ay + alpha * rawY;
+      ax = ax + alpha * rawX; // smooth
     }
 
     function update() {
-      // Invert axes to match screen
-      ball.vx += ax; 
-      ball.vy += ay;
-
+      // Horizontal movement only
+      ball.vx += ax;
       ball.x += ball.vx;
-      ball.y += ball.vy;
 
-      // Bounce on edges
+      // Bounce at edges
       if(ball.x + ball.radius > W) { ball.x = W - ball.radius; ball.vx *= -ball.damping; }
       if(ball.x - ball.radius < 0) { ball.x = ball.radius; ball.vx *= -ball.damping; }
-      if(ball.y + ball.radius > H) { ball.y = H - ball.radius; ball.vy *= -ball.damping; }
-      if(ball.y - ball.radius < 0) { ball.y = ball.radius; ball.vy *= -ball.damping; }
     }
 
     function draw() {
