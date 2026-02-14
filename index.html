@@ -1,101 +1,102 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Shake Threshold Ball</title>
+  <title>Smooth Horizontal Shake Ball</title>
   <style>
     body { margin: 0; overflow: hidden; background: #111; }
     canvas { display: block; }
   </style>
 </head>
 <body>
-  <canvas id="gameCanvas"></canvas>
+<canvas id="gameCanvas"></canvas>
 
-  <script>
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-    let W = canvas.width = window.innerWidth;
-    let H = canvas.height = window.innerHeight;
+<script>
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+let W = canvas.width = window.innerWidth;
+let H = canvas.height = window.innerHeight;
 
-    window.addEventListener('resize', () => {
-      W = canvas.width = window.innerWidth;
-      H = canvas.height = window.innerHeight;
-      ball.y = H/2; // center Y
-    });
+window.addEventListener('resize', () => {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+  ball.y = H/2; // center Y
+});
 
-    // Ball setup
-    const ball = {
-      x: W/2,
-      y: H/2,      // fixed vertical
-      radius: 30,
-      vx: 0,
-      color: 'cyan',
-      damping: 0.8
-    };
+// Ball setup
+const ball = {
+  x: W/2,
+  y: H/2,
+  radius: 30,
+  vx: 0,
+  color: 'cyan',
+  damping: 0.8
+};
 
-    // Accelerometer smoothing for X axis only
-    let ax = 0;
-    const alpha = 0.1;
-    const threshold = 0.5; // minimum shake to move ball
+// Accelerometer smoothing
+let ax = 0;
+const alpha = 0.1;
+const threshold = 0.2; // lower threshold
 
-    function handleMotion(event) {
-      let rawX = event.acceleration.x || 0;
+function handleMotion(event) {
+  let rawX = event.acceleration.x || 0;
 
-      // Apply low-pass filter
-      ax = ax + alpha * rawX;
+  // Smooth
+  ax = ax + alpha * rawX;
 
-      // Apply threshold: ignore very small values (noise)
-      if(Math.abs(ax) < threshold) ax = 0;
-    }
+  // Apply threshold
+  if(Math.abs(ax) < threshold) ax = 0;
+}
 
-    function update() {
-      // Horizontal movement only
-      ball.vx += ax;
-      ball.x += ball.vx;
+function update() {
+  // Add small random jitter if ax is zero
+  let jitter = (ax === 0) ? (Math.random() - 0.5) * 0.2 : 0;
 
-      // Bounce at edges
-      if(ball.x + ball.radius > W) { ball.x = W - ball.radius; ball.vx *= -ball.damping; }
-      if(ball.x - ball.radius < 0) { ball.x = ball.radius; ball.vx *= -ball.damping; }
+  ball.vx += ax + jitter;
+  ball.x += ball.vx;
 
-      // Slowly reduce velocity over time (friction)
-      ball.vx *= 0.98;
-    }
+  // Bounce on edges
+  if(ball.x + ball.radius > W) { ball.x = W - ball.radius; ball.vx *= -ball.damping; }
+  if(ball.x - ball.radius < 0) { ball.x = ball.radius; ball.vx *= -ball.damping; }
 
-    function draw() {
-      ctx.clearRect(0,0,W,H);
+  // Slight friction
+  ball.vx *= 0.995;
+}
 
-      // Draw ball
-      ctx.beginPath();
-      ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI*2);
-      ctx.fillStyle = ball.color;
-      ctx.fill();
-      ctx.closePath();
-    }
+function draw() {
+  ctx.clearRect(0,0,W,H);
 
-    function loop() {
-      update();
-      draw();
-      requestAnimationFrame(loop);
-    }
+  ctx.beginPath();
+  ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI*2);
+  ctx.fillStyle = ball.color;
+  ctx.fill();
+  ctx.closePath();
+}
 
-    function requestMotionPermission() {
-      if (typeof DeviceMotionEvent !== 'undefined' &&
-          typeof DeviceMotionEvent.requestPermission === 'function') {
-        DeviceMotionEvent.requestPermission()
-          .then(permissionState => {
-            if (permissionState === 'granted') {
-              window.addEventListener('devicemotion', handleMotion);
-            } else {
-              alert('Permission denied for accelerometer');
-            }
-          })
-          .catch(console.error);
-      } else {
-        window.addEventListener('devicemotion', handleMotion);
-      }
-    }
+function loop() {
+  update();
+  draw();
+  requestAnimationFrame(loop);
+}
 
-    requestMotionPermission();
-    loop();
-  </script>
+function requestMotionPermission() {
+  if (typeof DeviceMotionEvent !== 'undefined' &&
+      typeof DeviceMotionEvent.requestPermission === 'function') {
+    DeviceMotionEvent.requestPermission()
+      .then(permissionState => {
+        if (permissionState === 'granted') {
+          window.addEventListener('devicemotion', handleMotion);
+        } else {
+          alert('Permission denied for accelerometer');
+        }
+      })
+      .catch(console.error);
+  } else {
+    window.addEventListener('devicemotion', handleMotion);
+  }
+}
+
+requestMotionPermission();
+loop();
+</script>
 </body>
 </html>
