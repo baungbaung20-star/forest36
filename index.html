@@ -1,18 +1,29 @@
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
-<script>
-  // Simple linear regression in browser
-  const xs = tf.tensor1d([0,1,2,3,4,5]);
-  const ys = tf.tensor1d([1800, 1810, 1825, 1830, 1840, 1850]);
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Gold Price Prediction</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
+</head>
+<body>
+  <h1>Predicted Gold Price: <span id="pred">Loading...</span> USD</h1>
 
-  const model = tf.sequential();
-  model.add(tf.layers.dense({units:1, inputShape:[1]}));
-  model.compile({loss:'meanSquaredError', optimizer:'sgd'});
+  <script>
+    // sample data
+    const xs = tf.tensor1d([0,1,2,3,4,5]);
+    const ys = tf.tensor1d([1800, 1810, 1825, 1830, 1840, 1850]);
 
-  async function trainAndPredict() {
-    await model.fit(xs, ys, {epochs:200});
-    const output = model.predict(tf.tensor1d([6]));
-    output.print(); // predicted next day gold price
-  }
+    const model = tf.sequential();
+    model.add(tf.layers.dense({units:1, inputShape:[1]}));
+    model.compile({loss:'meanSquaredError', optimizer:'sgd'});
 
-  trainAndPredict();
-</script>
+    async function predict() {
+      await model.fit(xs, ys, {epochs:200});
+      const output = model.predict(tf.tensor1d([6]));
+      const value = output.dataSync()[0].toFixed(2);
+      document.getElementById('pred').innerText = value;
+    }
+
+    predict();
+  </script>
+</body>
+</html>
