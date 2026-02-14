@@ -1,10 +1,46 @@
+<!DOCTYPE html>
 <html>
-<head><title>Forest36!</title></head>
+<head>
+  <title>forest36_Accelerometer Example</title>
+</head>
 <body>
-  <p>
-"The site is under construction!
-Thank You"
-#akkl
-  </p>
+  <h1>Accelerometer Data</h1>
+  <p id="x">X: </p>
+  <p id="y">Y: </p>
+  <p id="z">Z: </p>
+
+  <script>
+    // iOS 13+ require user permission
+    function requestMotionPermission() {
+      if (typeof DeviceMotionEvent !== 'undefined' &&
+          typeof DeviceMotionEvent.requestPermission === 'function') {
+        DeviceMotionEvent.requestPermission()
+          .then(permissionState => {
+            if (permissionState === 'granted') {
+              window.addEventListener('devicemotion', handleMotion);
+            } else {
+              alert('Permission denied for accelerometer');
+            }
+          })
+          .catch(console.error);
+      } else {
+        // Non iOS or older devices
+        window.addEventListener('devicemotion', handleMotion);
+      }
+    }
+
+    function handleMotion(event) {
+      const x = event.acceleration.x.toFixed(2);
+      const y = event.acceleration.y.toFixed(2);
+      const z = event.acceleration.z.toFixed(2);
+
+      document.getElementById('x').innerText = 'X: ' + x;
+      document.getElementById('y').innerText = 'Y: ' + y;
+      document.getElementById('z').innerText = 'Z: ' + z;
+    }
+
+    // Button to request permission for iOS
+    requestMotionPermission();
+  </script>
 </body>
 </html>
