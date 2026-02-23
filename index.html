@@ -32,7 +32,7 @@ async function save() {
   console.log("Clicked", name)
 
   const { data, error } = await supabase
-    .from('test')
+    .from('users')
     .insert([{ name: name }])
 
   console.log("DATA:", data)
