@@ -3,47 +3,61 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="background-image:url('forest36.png'); background-size:cover; margin: 0;
-  height: 100vh;
-  display: flex;
-  justify-content: center;  /* အလျားလိုက်အလယ် */
-  align-items: center;      /* အမြင့်လိုက်အလယ် */
-  color: orange;
-  font-size: 50px;">
-<div style="color:orange; font-size:60px; border:2px solid orange; background: rgba(0,0,0,0.3);
-backdrop-filter: blur(10px); box-shadow: 0 0 20px orange;">
+
+<body style="
+  background-image:url('forest36.png');
+  background-size:cover;
+  margin:0;
+  height:100vh;
+  display:flex;
+  flex-direction:column; /* ⭐ FIX */
+  justify-content:center;
+  align-items:center;
+  color:orange;
+">
+
+<div style="
+  font-size:60px;
+  border:2px solid orange;
+  background: rgba(0,0,0,0.3);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 20px orange;
+  padding:20px;
+  margin-bottom:30px;
+">
   Forest 36
 </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-const supabaseUrl = 'https://gcxplhtoujgigaovqazu.supabase.co'
-const supabaseKey = 'sb_publishable_h47zIuNEs9ZmTQF0FI7rhA_ZCZhRdQZ'
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey)
-    
-  </script>
-
+<!-- FORM -->
+<div>
   <input id="name" placeholder="Type name">
-<button onclick="save()">Save</button>
+  <button onclick="save()">Save</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
+const supabase = window.supabase.createClient(
+  'https://gcxplhtoujgigaovqazu.supabase.co',
+  'sb_publishable_h47zIuNEs9ZmTQF0FI7rhA_ZCZhRdQZ'
+)
+
 async function save() {
+  alert("clicked") // debug
+
   const name = document.getElementById("name").value
-  console.log("Clicked", name)
 
   const { data, error } = await supabase
     .from('users')
-    .insert([{ name: name }])
+    .insert([{ name }])
 
-  console.log("DATA:", data)
-  console.log("ERROR:", error)
-
-  if(error){
+  if (error) {
     alert("Error: " + error.message)
   } else {
     alert("Saved!")
   }
 }
 </script>
+
 </body>
 </html>
