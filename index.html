@@ -10,7 +10,7 @@
   margin:0;
   height:100vh;
   display:flex;
-  flex-direction:column; /* ⭐ FIX */
+  flex-direction:column;
   justify-content:center;
   align-items:center;
   color:orange;
@@ -19,40 +19,39 @@
 <div style="
   font-size:60px;
   border:2px solid orange;
-  background: rgba(0,0,0,0.3);
+  background:rgba(0,0,0,0.3);
   backdrop-filter: blur(10px);
-  box-shadow: 0 0 20px orange;
+  box-shadow:0 0 20px orange;
   padding:20px;
-  margin-bottom:30px;
-">
+  margin-bottom:20px;">
   Forest 36
 </div>
 
-<!-- FORM -->
-<div>
-  <input id="name" placeholder="Type name">
-  <button onclick="save()">Save</button>
-</div>
+<input id="name" placeholder="Type name" style="padding:10px; font-size:18px;">
+<button id="saveBtn" style="margin-top:10px; padding:10px 20px;">Save</button>
 
+<!-- Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <script>
-const supabase = window.supabase.createClient(
-  'https://gcxplhtoujgigaovqazu.supabase.co',
-  'sb_publishable_h47zIuNEs9ZmTQF0FI7rhA_ZCZhRdQZ'
-)
+const supabaseUrl = 'https://gcxplhtoujgigaovqazu.supabase.co'
+const supabaseKey = 'sb_publishable_h47zIuNEs9ZmTQF0FI7rhA_ZCZhRdQZ'
+const supabase = window.supabase.createClient(supabaseUrl, supabaseKey)
+
+// BUTTON EVENT
+document.getElementById("saveBtn").addEventListener("click", save)
 
 async function save() {
-  alert("clicked") // debug
+  alert("Button clicked!") // 🔥 test alert
 
   const name = document.getElementById("name").value
 
   const { data, error } = await supabase
     .from('users')
-    .insert([{ name }])
+    .insert([{ name: name }])
 
-  if (error) {
+  if(error){
     alert("Error: " + error.message)
+    console.log(error)
   } else {
     alert("Saved!")
   }
