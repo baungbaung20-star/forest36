@@ -27,36 +27,7 @@
   Forest 36
 </div>
 
-<input id="name" placeholder="Type name" style="padding:10px; font-size:18px;">
-<button id="saveBtn" style="margin-top:10px; padding:10px 20px;">Save</button>
 
-<!-- Supabase -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-const supabaseUrl = 'https://gcxplhtoujgigaovqazu.supabase.co/users'
-const supabaseKey = 'sb_publishable_h47zIuNEs9ZmTQF0FI7rhA_ZCZhRdQZ'
-const supabase = window.supabase.createClient(supabaseUrl, supabaseKey)
-
-// BUTTON EVENT
-document.getElementById("saveBtn").addEventListener("click", save)
-
-function save() {
-  alert("Button clicked!") // 🔥 test alert
-
-  const name = document.getElementById("name").value
-
-  const { data, error } = await supabase
-    .from('users')
-    .insert([{ name: name }])
-
-  if(error){
-    alert("Error: " + error.message)
-    console.log(error)
-  } else {
-    alert("Saved!")
-  }
-}
-</script>
 
 </body>
 </html>
