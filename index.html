@@ -30,7 +30,7 @@
   <h1>AI Photo Generator</h1>
   <p>Type your prompt and generate an AI image</p>
 
-  <input id="prompt" placeholder="Type something like 'A sunset over mountains'">
+  <input id="prompt" placeholder="e.g., A sunset over mountains">
   <button onclick="generate()">Generate</button>
 
   <div>
@@ -38,38 +38,30 @@
   </div>
 
   <script>
-    // Hugging Face Inference API URL
-    const HF_PUBLIC_API_URL = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-2-1";
-
-    // ⚠️ Free-tier: API key usually required. Public frontend risk exists if key is added here.
-    const HF_API_KEY = ""; // optional, can leave blank for public demo models
+    // Hugging Face Spaces public API (no key required)
+    const HF_SPACES_API_URL = "https://hf.space/embed/stabilityai/stable-diffusion-2-1/api/predict/";
 
     async function generate() {
       const prompt = document.getElementById("prompt").value;
       if(!prompt) { alert("Please enter a prompt"); return; }
 
-      document.getElementById("result").src = ""; // reset image
+      document.getElementById("result").src = "";
       document.getElementById("result").alt = "Generating...";
 
-      const bodyData = {
-        inputs: prompt,
-        options: { wait_for_model: true }
-      };
-
       try {
-        const res = await fetch(HF_PUBLIC_API_URL, {
+        const res = await fetch(HF_SPACES_API_URL, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            ...(HF_API_KEY && { "Authorization": "Bearer " + HF_API_KEY })
-          },
-          body: JSON.stringify(bodyData)
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({data:[prompt]})
         });
 
-        const blob = await res.blob();
-        const url = URL.createObjectURL(blob);
-        document.getElementById("result").src = url;
-        document.getElementById("result").alt = "Generated Image";
+        const data = await res.json();
+        if(data && data.data && data.data[0]) {
+          document.getElementById("result").src = "data:image/png;base64," + data.data[0];
+          document.getElementById("result").alt = "Generated Image";
+        } else {
+          throw new Error("No image returned");
+        }
 
       } catch (err) {
         console.error(err);
@@ -78,6 +70,7 @@
       }
     }
   </script>
+
 
 </body>
 </html>
