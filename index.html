@@ -27,49 +27,33 @@
   Forest 36
 </div>
 
-  <h1>AI Photo Generator</h1>
-  <p>Type your prompt and generate an AI image</p>
+  <h2>AI Image Generator</h2>
 
-  <input id="prompt" placeholder="e.g., A sunset over mountains">
-  <button onclick="generate()">Generate</button>
+<input id="prompt" placeholder="Type prompt">
+<button onclick="generate()">Generate</button>
 
-  <div>
-    <img id="result" src="" alt="Generated Image"/>
-  </div>
+<br>
 
-  <script>
-    // Hugging Face Spaces public API (no key required)
-    const HF_SPACES_API_URL = "https://hf.space/embed/stabilityai/stable-diffusion-2-1/api/predict/";
+<img id="result">
 
-    async function generate() {
-      const prompt = document.getElementById("prompt").value;
-      if(!prompt) { alert("Please enter a prompt"); return; }
+<script>
 
-      document.getElementById("result").src = "";
-      document.getElementById("result").alt = "Generating...";
+function generate(){
 
-      try {
-        const res = await fetch(HF_SPACES_API_URL, {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({data:[prompt]})
-        });
+let prompt = document.getElementById("prompt").value;
 
-        const data = await res.json();
-        if(data && data.data && data.data[0]) {
-          document.getElementById("result").src = "data:image/png;base64," + data.data[0];
-          document.getElementById("result").alt = "Generated Image";
-        } else {
-          throw new Error("No image returned");
-        }
+if(!prompt){
+alert("Enter prompt");
+return;
+}
 
-      } catch (err) {
-        console.error(err);
-        alert("Error generating image. See console.");
-        document.getElementById("result").alt = "Error generating image";
-      }
-    }
-  </script>
+let url = "https://image.pollinations.ai/prompt/" + encodeURIComponent(prompt);
+
+document.getElementById("result").src = url;
+
+}
+
+</script>
 
 
 </body>
